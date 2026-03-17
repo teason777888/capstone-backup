@@ -40,6 +40,7 @@ export default function QuestionnairePage() {
     () => calculateMean(currentSectionResponses),
     [currentSectionResponses]
   );
+
   const stdDev = useMemo(
     () => calculateStdDev(currentSectionResponses),
     [currentSectionResponses]
@@ -58,7 +59,7 @@ export default function QuestionnairePage() {
     if (currentSectionIndex < questionnaireSections.length - 1) {
       setCurrentSectionIndex((prev) => prev + 1);
     } else {
-      navigate("/questionnaire-summary", { state: { responses } });
+      navigate("/assessment-summary", { state: { responses } });
     }
   };
 
@@ -77,6 +78,7 @@ export default function QuestionnairePage() {
           const sectionAnswered = section.questions.filter(
             (q) => responses[q.id]
           ).length;
+
           const sectionProgress = Math.round(
             (sectionAnswered / section.questions.length) * 100
           );

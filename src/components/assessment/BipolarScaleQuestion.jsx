@@ -11,27 +11,29 @@ export default function BipolarScaleQuestion({
 }) {
   return (
     <div className="bipolar-question-card">
-      <div className="bipolar-question-header">Question {questionNumber}</div>
+      <h3 className="bipolar-question-title">Question {questionNumber}</h3>
 
       <div className="bipolar-scale-row">
-        <div className="bipolar-label left">{leftLabel}</div>
+        <div className="bipolar-label bipolar-label-left">
+          {leftLabel}
+        </div>
 
-        <div className="bipolar-scale-options">
-          {SCALE_VALUES.map((option) => (
-            <label key={option} className="bipolar-option">
-              <input
-                type="radio"
-                name={`question-${questionNumber}`}
-                value={option}
-                checked={value === option}
-                onChange={() => onChange(option)}
-              />
-              <span className="bipolar-circle" />
-            </label>
+        <div className="bipolar-options">
+          {SCALE_VALUES.map((scaleValue) => (
+            <button
+              key={scaleValue}
+              type="button"
+              className={`scale-circle ${value === scaleValue ? "selected" : ""}`}
+              onClick={() => onChange(scaleValue)}
+            >
+              <span className="sr-only">{scaleValue}</span>
+            </button>
           ))}
         </div>
 
-        <div className="bipolar-label right">{rightLabel}</div>
+        <div className="bipolar-label bipolar-label-right">
+          {rightLabel}
+        </div>
       </div>
     </div>
   );
