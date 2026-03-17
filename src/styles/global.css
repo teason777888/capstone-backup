@@ -211,7 +211,6 @@ input, button { font: inherit; }
   width: 100%;
 }
 
-/* 报错时的红色边框 */
 .field-group .field input.error {
   border-color: #dc3545;
 }
@@ -221,7 +220,6 @@ input, button { font: inherit; }
   box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
 }
 
-/* 错误提示文字 */
 .error-message {
   color: #dc3545;
   font-size: 0.875rem;
@@ -229,13 +227,11 @@ input, button { font: inherit; }
   display: block;
 }
 
-/* 错误提示文字前面加个警告符号 */
 .error-message::before {
   content: "⚠ ";
   font-weight: bold;
 }
 
-/* 错误横幅（用于服务器返回的错误） */
 .error-banner {
   background-color: #f8d7da;
   color: #721c24;
@@ -247,7 +243,6 @@ input, button { font: inherit; }
   text-align: center;
 }
 
-/* 表单选项行 */
 .form-options {
   display: flex;
   justify-content: space-between;
@@ -278,7 +273,6 @@ input, button { font: inherit; }
   text-decoration: underline;
 }
 
-/* 按钮禁用状态 */
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -301,7 +295,6 @@ input, button { font: inherit; }
   text-decoration: underline;
 }
 
-/* 加载状态的按钮样式 */
 .btn.loading {
   position: relative;
   color: transparent;
@@ -338,7 +331,6 @@ input, button { font: inherit; }
   width: 100%;
 }
 
-/* 报错时的红色边框 */
 .field-group .field input.error {
   border-color: #dc3545;
 }
@@ -348,7 +340,6 @@ input, button { font: inherit; }
   box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
 }
 
-/* 错误提示文字 */
 .error-message {
   color: #dc3545;
   font-size: 0.875rem;
@@ -356,7 +347,6 @@ input, button { font: inherit; }
   display: block;
 }
 
-/* 错误提示文字前面加个红色星号 */
 .error-message::before {
   content: "⚠ ";
   font-weight: bold;
@@ -378,7 +368,6 @@ input, button { font: inherit; }
   text-decoration: underline;
 }
 
-/* 可选字段的提示文字可以淡一点 */
 .field-group:has(input[name="groupNumber"]) .field span:first-child {
   color: #666;
 }
@@ -504,7 +493,6 @@ input, button { font: inherit; }
   color: #333;
 }
 
-/* 邀请码输入框大写 */
 input[type="text"][placeholder*="X7A9BQ"] {
   text-transform: uppercase;
 }
