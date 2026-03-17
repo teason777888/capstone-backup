@@ -10,7 +10,7 @@ import InvitationCodePage from '../pages/InvitationCodePage';
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/register" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/register" element={<RegistrationPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/join-group" element={<InvitationCodePage />} />

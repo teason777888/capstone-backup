@@ -198,3 +198,317 @@ input, button { font: inherit; }
   .sidebar { display: none; }
   .two-column-grid, .kpi-grid, .form-grid { grid-template-columns: 1fr; }
 }
+
+/* login */
+
+.field-group {
+  margin-bottom: 1rem;
+  width: 100%;
+  position: relative;
+}
+
+.field-group .field {
+  width: 100%;
+}
+
+/* 报错时的红色边框 */
+.field-group .field input.error {
+  border-color: #dc3545;
+}
+
+.field-group .field input.error:focus {
+  outline-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+/* 错误提示文字 */
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* 错误提示文字前面加个警告符号 */
+.error-message::before {
+  content: "⚠ ";
+  font-weight: bold;
+}
+
+/* 错误横幅（用于服务器返回的错误） */
+.error-banner {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f5c6cb;
+  width: 100%;
+  text-align: center;
+}
+
+/* 表单选项行 */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.forgot-link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* 按钮禁用状态 */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.auth-footer a {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* 加载状态的按钮样式 */
+.btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* register */
+
+.field-group {
+  margin-bottom: 1rem;
+  width: 100%;
+  position: relative;
+}
+
+.field-group .field {
+  width: 100%;
+}
+
+/* 报错时的红色边框 */
+.field-group .field input.error {
+  border-color: #dc3545;
+}
+
+.field-group .field input.error:focus {
+  outline-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+/* 错误提示文字 */
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* 错误提示文字前面加个红色星号 */
+.error-message::before {
+  content: "⚠ ";
+  font-weight: bold;
+}
+
+.auth-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.auth-footer a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* 可选字段的提示文字可以淡一点 */
+.field-group:has(input[name="groupNumber"]) .field span:first-child {
+  color: #666;
+}
+
+/* Invite code */ 
+
+.mode-toggle {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.mode-btn.active {
+  color: #0066cc;
+  background-color: #e6f0ff;
+  font-weight: 600;
+}
+
+.info-box {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0066cc;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 4px;
+}
+
+.info-box h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.info-box p {
+  margin: 0;
+  color: #666;
+}
+
+.code-preview {
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.group-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.success-mode {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.invite-code-box {
+  background-color: #f0f7ff;
+  border: 2px dashed #0066cc;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.invite-code-box label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.code-display {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.code-display code {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  background-color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-family: monospace;
+}
+
+.group-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.group-preview h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+/* 邀请码输入框大写 */
+input[type="text"][placeholder*="X7A9BQ"] {
+  text-transform: uppercase;
+}
+
+input[type="text"][placeholder*="X7A9BQ"]::placeholder {
+  text-transform: none;
+}
