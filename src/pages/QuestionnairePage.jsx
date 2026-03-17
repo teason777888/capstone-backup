@@ -1,61 +1,172 @@
-import { useState } from 'react';
-import AppShell from '../components/layout/AppShell';
-import Button from '../components/common/Button';
-import QuestionCard from '../components/assessment/QuestionCard';
-import { assessmentService } from '../services/assessmentService';
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { questionnaireSections } from "../data/questionnaireData";
+import BipolarScaleQuestion from "../components/assessment/BipolarScaleQuestion";
+import AnalyticsPanel from "../components/assessment/AnalyticsPanel";
 
-const questions = [
-  'Our group has a clearly defined mission and scope.',
-  'Our governance structure supports fair decision making.',
-  'Our group collaborates effectively with external organisations.',
-];
+function calculateMean(values) {
+  if (!values.length) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function calculateStdDev(values) {
+  if (!values.length) return 0;
+  const mean = calculateMean(values);
+  const variance =
+    values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
+  return Math.sqrt(variance);
+}
 
 export default function QuestionnairePage() {
-  const [answers, setAnswers] = useState({ 0: 3, 1: 4, 2: 2 });
-  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [responses, setResponses] = useState({});
 
-  const handleChange = (index, value) => {
-    setAnswers((prev) => ({ ...prev, [index]: value }));
+  const currentSection = questionnaireSections[currentSectionIndex];
+
+  const totalQuestions = questionnaireSections.reduce(
+    (sum, section) => sum + section.questions.length,
+    0
+  );
+
+  const answeredCount = Object.keys(responses).length;
+  const progressPercent = Math.round((answeredCount / totalQuestions) * 100);
+
+  const currentSectionResponses = currentSection.questions
+    .map((q) => responses[q.id])
+    .filter(Boolean);
+
+  const mean = useMemo(
+    () => calculateMean(currentSectionResponses),
+    [currentSectionResponses]
+  );
+  const stdDev = useMemo(
+    () => calculateStdDev(currentSectionResponses),
+    [currentSectionResponses]
+  );
+
+  const mockDistribution = [8, 14, 18, 22, 30, 52, 30];
+
+  const updateResponse = (questionId, value) => {
+    setResponses((prev) => ({
+      ...prev,
+      [questionId]: value,
+    }));
   };
 
-  const handleSubmit = async () => {
-    const result = await assessmentService.submitResponses({ answers });
-    setMessage(result.message || 'Submitted successfully.');
+  const goNextSection = () => {
+    if (currentSectionIndex < questionnaireSections.length - 1) {
+      setCurrentSectionIndex((prev) => prev + 1);
+    } else {
+      navigate("/questionnaire-summary", { state: { responses } });
+    }
+  };
+
+  const goPrevSection = () => {
+    if (currentSectionIndex > 0) {
+      setCurrentSectionIndex((prev) => prev - 1);
+    }
   };
 
   return (
-    <AppShell title="CRC Self-Assessment Questionnaire">
-      <div className="two-column-grid">
-        <section>
-          <div className="card soft-card">
-            <p className="muted">Section 1 of 2</p>
-            <h3>Scope & Mission</h3>
+    <div className="questionnaire-layout">
+      <aside className="questionnaire-sidebar">
+        <h3 className="sidebar-heading">PROGRESS</h3>
+
+        {questionnaireSections.map((section, index) => {
+          const sectionAnswered = section.questions.filter(
+            (q) => responses[q.id]
+          ).length;
+          const sectionProgress = Math.round(
+            (sectionAnswered / section.questions.length) * 100
+          );
+
+          return (
+            <div
+              key={section.id}
+              className={`section-progress-item ${
+                index === currentSectionIndex ? "active" : ""
+              }`}
+            >
+              <div className="section-index">{index + 1}</div>
+              <div className="section-progress-content">
+                <div className="section-title">{section.title}</div>
+                <div className="section-progress-bar">
+                  <div
+                    className="section-progress-fill"
+                    style={{ width: `${sectionProgress}%` }}
+                  />
+                </div>
+                <div className="section-progress-text">{sectionProgress}%</div>
+              </div>
+            </div>
+          );
+        })}
+      </aside>
+
+      <main className="questionnaire-main">
+        <div className="questionnaire-card">
+          <div className="questionnaire-topbar">
+            <div>
+              <div className="question-count">
+                Section {currentSectionIndex + 1} of {questionnaireSections.length}
+              </div>
+              <div className="questionnaire-progress-bar">
+                <div
+                  className="questionnaire-progress-fill"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+            <div className="questionnaire-progress-number">{progressPercent}%</div>
           </div>
-          {questions.map((question, index) => (
-            <QuestionCard
-              key={question}
-              question={question}
-              value={answers[index]}
-              onChange={(value) => handleChange(index, value)}
-            />
-          ))}
-          <div className="button-row">
-            <Button variant="secondary">Save Draft</Button>
-            <Button onClick={handleSubmit}>Submit Assessment</Button>
+
+          <p className="questionnaire-description">
+            {currentSection.description}
+          </p>
+
+          <h2 className="section-heading">{currentSection.title}</h2>
+
+          <div className="question-list">
+            {currentSection.questions.map((question, index) => (
+              <BipolarScaleQuestion
+                key={question.id}
+                questionNumber={index + 1}
+                leftLabel={question.leftLabel}
+                rightLabel={question.rightLabel}
+                value={responses[question.id]}
+                onChange={(value) => updateResponse(question.id, value)}
+              />
+            ))}
           </div>
-          {message && <p className="success-text">{message}</p>}
-        </section>
-        <aside className="card">
-          <h3>Live Summary</h3>
-          <ul className="list">
-            <li>Response Distribution: balanced</li>
-            <li>Mean Score: 3.0</li>
-            <li>Standard Deviation: 0.82</li>
-            <li>Highest Agreement: governance clarity</li>
-            <li>Highest Disagreement: external collaboration</li>
-          </ul>
-        </aside>
-      </div>
-    </AppShell>
+
+          <div className="questionnaire-actions">
+            <button
+              className="secondary-btn"
+              onClick={goPrevSection}
+              disabled={currentSectionIndex === 0}
+            >
+              Previous
+            </button>
+
+            <button className="ghost-btn">Save Draft</button>
+
+            <button className="primary-btn" onClick={goNextSection}>
+              {currentSectionIndex === questionnaireSections.length - 1
+                ? "Submit"
+                : "Next"}
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <AnalyticsPanel
+        distribution={mockDistribution}
+        mean={mean || 3.8}
+        stdDev={stdDev || 1.2}
+        highestConsensus="Q1 (SD = 0.5)"
+        highestDisagreement="Q7 (SD = 2.1)"
+      />
+    </div>
   );
 }
