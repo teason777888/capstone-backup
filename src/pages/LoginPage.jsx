@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/common/Button';
 import InputField from '../components/common/InputField';
 import { authService } from '../services/authService';
@@ -8,18 +8,85 @@ import { useAuth } from '../context/AuthContext';
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+  
+  const [credentials, setCredentials] = useState({ 
+    email: '', 
+    password: '' 
+  });
+  
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setCredentials((prev) => ({ ...prev, [name]: value }));
+    
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+
+    if (loginError) {
+      setLoginError('');
+    }
+  };
+
+  const handleBlur = (event) => {
+    const { name } = event.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!credentials.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(credentials.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!credentials.password) {
+      newErrors.password = 'Password is required';
+    } else if (credentials.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    return newErrors;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = await authService.login(credentials);
-    login(result);
-    navigate('/join-group');
+    
+    setTouched({
+      email: true,
+      password: true
+    });
+
+    const newErrors = validateForm();
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
+    setIsLoading(true);
+    setLoginError('');
+
+    try {
+      const result = await authService.login(credentials);
+      
+      if (result.success) {
+        login(result.data);
+        navigate('/join-group');
+      } else {
+        setLoginError(result.error || 'Invalid email or password');
+      }
+    } catch (error) {
+      setLoginError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -27,11 +94,56 @@ export default function LoginPage() {
       <div className="auth-card">
         <h1>Sign In</h1>
         <p className="muted">Access your CommuniCare workspace.</p>
-        <form onSubmit={handleSubmit}>
-          <InputField label="Email" name="email" type="email" placeholder="name@example.com" onChange={handleChange} />
-          <InputField label="Password" name="password" type="password" placeholder="••••••••" onChange={handleChange} />
+        
+        {loginError && (
+          <div className="error-banner">
+            {loginError}
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="field-group">
+            <InputField 
+              label="Email"
+              name="email" 
+              type="email" 
+              placeholder="name@example.com" 
+              value={credentials.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={touched.email && errors.email ? 'error' : ''}
+            />
+            {touched.email && errors.email && (
+              <span className="error-message">{errors.email}</span>
+            )}
+          </div>
+
+          <div className="field-group">
+            <InputField 
+              label="Password"
+              name="password" 
+              type="password" 
+              placeholder="••••••••" 
+              value={credentials.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={touched.password && errors.password ? 'error' : ''}
+            />
+            {touched.password && errors.password && (
+              <span className="error-message">{errors.password}</span>
+            )}
+          </div>
+
           <div className="form-actions">
-            <Button type="submit">Sign In</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </div>
+
+          <div className="auth-footer">
+            <p className="muted">
+              Don't have an account? <Link to="/register">Create one here</Link>
+            </p>
           </div>
         </form>
       </div>
