@@ -98,8 +98,8 @@ export default function QuestionnaireSummaryPage() {
         <button className="secondary-btn" onClick={() => navigate("/questionnaire")}>
           Back to Questionnaire
         </button>
-        <button className="primary-btn" onClick={() => navigate("/dashboard")}>
-          Return to Dashboard
+        <button className="primary-btn" onClick={() => navigate("/assessment-success")}>
+          Continue
         </button>
       </div>
     </div>
