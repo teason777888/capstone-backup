@@ -4,12 +4,13 @@ import Button from '../components/common/Button';
 import InputField from '../components/common/InputField';
 import { useGroup } from '../context/GroupContext';
 import { useAuth } from '../context/AuthContext';
+import { groupService } from '../services/groupService';
 
 export default function InvitationCodePage() {
   const navigate = useNavigate();
   const { group, updateGroup } = useGroup();
   const { user } = useAuth();
-  
+
   const [mode, setMode] = useState('create');
   
   const [joinCode, setJoinCode] = useState('');
@@ -33,23 +34,40 @@ export default function InvitationCodePage() {
     setIsCreating(true);
     setCreateSuccess(false);
     
-    const newCode = generateInviteCode();
-    
-    setTimeout(() => {
-      setCreatedCode(newCode);
-      setCreateSuccess(true);
+    try {
+      const codeResult = await groupService.generateInviteCode();
       
-      updateGroup({
-        ...group,
-        name: `${user?.name || 'User'}'s Recovery Group`,
-        inviteCode: newCode,
-        members: 1
-      });
-      
-      setIsCreating(false);
-    }, 1000); 
-  };
+      if (codeResult.success) {
+        const newCode = codeResult.inviteCode;
+        
+        const result = await groupService.createGroup({
+          name: `${user?.name || 'User'}'s Group`,
+          inviteCode: newCode,
+          createdBy: user?.id
+        });
+        
+        if (result.success) {
+          setCreatedCode(newCode);
+          setCreateSuccess(true);
 
+          updateGroup({
+            ...group,
+            name: result.groupName || `${user?.name || 'User'}'s Group`,
+            inviteCode: newCode,
+            members: 1
+          });
+        } else {
+          setJoinError('Failed to create group. Please try again.');
+        }
+      } else {
+        setJoinError(codeResult.error || 'Failed to generate invite code');
+      }
+    } catch (error) {
+      setJoinError('An error occurred. Please try again.');
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const handleJoinGroup = async () => {
     if (!joinCode.trim()) {
@@ -60,27 +78,34 @@ export default function InvitationCodePage() {
     setIsJoining(true);
     setJoinError('');
 
-
-    setTimeout(() => {
-
-      const validCodes = ['X7A9BQ', 'TEST123', 'ABC123', 'HELLO6'];
+    try {
+      const result = await groupService.joinGroup({
+        inviteCode: joinCode.toUpperCase(),
+        userId: user?.id
+      });
       
-      if (validCodes.includes(joinCode.toUpperCase())) {
+      if (result.success) {
         updateGroup({
-          name: 'Riverside Recovery Committee',
+          name: result.groupName,
           inviteCode: joinCode.toUpperCase(),
-          location: 'Northern Rivers, NSW',
-          disasterType: 'Flood',
-          members: 18
+          location: result.location,
+          disasterType: result.disasterType,
+          members: result.memberCount
         });
         
         navigate('/dashboard');
       } else {
-        setJoinError('Invalid invitation code');
+        setJoinError(result.error || 'Invalid invitation code');
       }
-      
+    } catch (error) {
+      setJoinError('Failed to join group. Please try again.');
+    } finally {
       setIsJoining(false);
-    }, 1000);
+    }
+  };
+
+  const handleGoToDashboard = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -116,7 +141,7 @@ export default function InvitationCodePage() {
                 <div className="code-preview">
                   <p>Your group will be created as:</p>
                   <div className="group-info">
-                    <strong>{user?.name || 'User'}'s Recovery Group</strong>
+                    <strong>{user.name}'s Recovery Group</strong>
                   </div>
                 </div>
 
@@ -156,7 +181,7 @@ export default function InvitationCodePage() {
                 </div>
 
                 <div className="form-actions">
-                  <Button onClick={() => navigate('/dashboard')}>
+                  <Button onClick={handleGoToDashboard}>
                     Go to Dashboard
                   </Button>
                 </div>
@@ -170,9 +195,6 @@ export default function InvitationCodePage() {
             <div className="info-box">
               <h3>Join an Existing Group</h3>
               <p>Enter the invitation code you received from the group creator.</p>
-              <p className="muted" style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>
-                Test codes: X7A9BQ, TEST123, ABC123, HELLO6
-              </p>
             </div>
 
             <div className="field-group">

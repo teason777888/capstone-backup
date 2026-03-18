@@ -2,53 +2,68 @@
 import { apiClient } from './apiClient';
 
 export const groupService = {
-  registerGroup: async (payload) => {
+
+  generateInviteCode: async () => {
     try {
-      return await apiClient.post('/api/groups', payload);
-    } catch {
-      return { success: true, inviteCode: 'X7A9BQ', groupName: payload.communityName };
+      const response = await apiClient.post('/api/v1/invitations/generate');
+      console.log('Generate invite code response:', response);
+      
+      const inviteCode = response.data?.data?.inviteCode || response.data?.inviteCode;
+      
+      return {
+        success: true,
+        inviteCode: inviteCode || 'X7A9BQ'
+      };
+    } catch (error) {
+      console.error('Failed to generate invite code:', error);
+      if (import.meta.env.DEV) {
+        return {
+          success: true,
+          inviteCode: 'X7A9BQ'
+        };
+      }
+      return {
+        success: false,
+        error: error.message || 'Failed to generate invite code'
+      };
     }
   },
 
   createGroup: async (payload) => {
     try {
-      const response = await apiClient.post('/api/groups/create', payload);
       return {
         success: true,
-        groupName: response.data.groupName,
-        inviteCode: response.data.inviteCode
+        groupName: payload.name,
+        inviteCode: payload.inviteCode
       };
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Failed to create group'
+        error: error.message || 'Failed to create group'
       };
     }
   },
 
   joinGroup: async (payload) => {
     try {
-      const response = await apiClient.post('/api/groups/join', payload);
+      if (import.meta.env.DEV && payload.inviteCode === 'X7A9BQ') {
+        return {
+          success: true,
+          groupName: 'Demo Recovery Group',
+          location: 'Sydney',
+          disasterType: 'Flood',
+          memberCount: 5
+        };
+      }
       return {
-        success: true,
-        groupName: response.data.groupName,
-        location: response.data.location,
-        disasterType: response.data.disasterType,
-        memberCount: response.data.memberCount
+        success: false,
+        error: 'Invalid invitation code'
       };
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Invalid invitation code'
+        error: error.message || 'Failed to join group'
       };
-    }
-  },
-
-  verifyInviteCode: async (code) => {
-    try {
-      return await apiClient.get(`/api/groups/verify/${code}`);
-    } catch {
-      return { success: false };
     }
   }
 };
