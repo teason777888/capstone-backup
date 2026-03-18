@@ -896,3 +896,28 @@ input[type="text"][placeholder*="X7A9BQ"] {
 input[type="text"][placeholder*="X7A9BQ"]::placeholder {
   text-transform: none;
 }
+
+.field-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.field-select.error {
+  border-color: #dc3545;
+}
+
+.field-select.error:focus {
+  outline-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+}
