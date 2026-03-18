@@ -1,3 +1,4 @@
+// pages/LoginPage.jsx
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Button from '../components/common/Button';
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [touched, setTouched] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -26,7 +28,9 @@ export default function LoginPage() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
-
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    }
     if (loginError) {
       setLoginError('');
     }
@@ -56,8 +60,8 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    
+   event.preventDefault();
+  
     setTouched({
       email: true,
       password: true
@@ -72,15 +76,29 @@ export default function LoginPage() {
 
     setIsLoading(true);
     setLoginError('');
+    setFieldErrors({});
 
     try {
       const result = await authService.login(credentials);
-      
+    
       if (result.success) {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify({
+         id: result.data.id,
+         name: result.data.name,
+         email: result.data.email,
+         role: result.data.role
+        }));
+      
         login(result.data);
+      
         navigate('/join-group');
       } else {
-        setLoginError(result.error || 'Invalid email or password');
+        if (result.status === 400 && result.details) {
+          setFieldErrors(result.details);
+        } else {
+          setLoginError(result.error || 'Invalid email or password');
+        }
       }
     } catch (error) {
       setLoginError('Login failed. Please try again.');
@@ -111,10 +129,13 @@ export default function LoginPage() {
               value={credentials.email}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={touched.email && errors.email ? 'error' : ''}
+              className={(touched.email && errors.email) || fieldErrors.email ? 'error' : ''}
             />
             {touched.email && errors.email && (
               <span className="error-message">{errors.email}</span>
+            )}
+            {fieldErrors.email && (
+              <span className="error-message">{fieldErrors.email}</span>
             )}
           </div>
 
@@ -127,10 +148,13 @@ export default function LoginPage() {
               value={credentials.password}
               onChange={handleChange}
               onBlur={handleBlur}
-              className={touched.password && errors.password ? 'error' : ''}
+              className={(touched.password && errors.password) || fieldErrors.password ? 'error' : ''}
             />
             {touched.password && errors.password && (
               <span className="error-message">{errors.password}</span>
+            )}
+            {fieldErrors.password && (
+              <span className="error-message">{fieldErrors.password}</span>
             )}
           </div>
 
