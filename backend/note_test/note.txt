@@ -1,0 +1,9 @@
+function&services:
+	submission
+	question_type 
+
+
+todo:
+Synchronize JSON with the front-end
+register blueprint in app/_init_.py
+make sure uniform the text format LF/CRLF
