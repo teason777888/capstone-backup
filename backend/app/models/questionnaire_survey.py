@@ -4,14 +4,14 @@ from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID
 
 
-class QuestionnaireSurvey(db.Model):
+class QuestionnaireSurvey(db.Model):    #question content
     __tablename__ = 'questionnaire_surveys'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)  #main key use uuid, will not auto increase. or we can do use auto increase, may change later.
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
-    created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=db.func.now())
+    is_active = db.Column(db.Boolean, nullable=False, default=True)  #consider
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=db.func.now())  #time stamp
     updated_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=db.func.now(), onupdate=db.func.now())
 
     questions = db.relationship(
@@ -25,9 +25,10 @@ class QuestionnaireSurvey(db.Model):
         backref='survey',
         lazy='dynamic',
         cascade='all, delete-orphan',
-    )
-
-    def to_dict(self, include_questions=False):
+    )  #all of these make survey.questions.all() work
+    
+    #to_dict is trans data format from object to json.
+    def to_dict(self, include_questions=False):  # for (include_questions)uncertain if need return question info, so just keep it.
         data = {
             'id': str(self.id),
             'title': self.title,
@@ -45,7 +46,7 @@ class QuestionnaireSurvey(db.Model):
         return data
 
 
-class QuestionnaireQuestionBank(db.Model):
+class QuestionnaireQuestionBank(db.Model):  #library, to manage the question or update.
     __tablename__ = 'questionnaire_question_bank'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -71,7 +72,7 @@ class QuestionnaireQuestionBank(db.Model):
         }
 
 
-class QuestionnaireSurveyQuestion(db.Model):
+class QuestionnaireSurveyQuestion(db.Model):  # a mid table to connect the question survey and the Bank.
     __tablename__ = 'questionnaire_survey_questions'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -81,22 +82,22 @@ class QuestionnaireSurveyQuestion(db.Model):
     is_required = db.Column(db.Boolean, nullable=False, default=True)
 
     __table_args__ = (
-        db.UniqueConstraint('survey_id', 'question_bank_id', name='uq_survey_question_bank'),
+        db.UniqueConstraint('survey_id', 'question_bank_id', name='uq_survey_question_bank'), # no same question
         db.UniqueConstraint('survey_id', 'question_order', name='uq_survey_question_order'),
-        db.Index('idx_qsq_survey_id', 'survey_id'),
+        db.Index('idx_qsq_survey_id', 'survey_id'),  # speed up
         db.Index('idx_qsq_question_bank_id', 'question_bank_id'),
     )
 
     def to_dict(self):
         return {
-            'id': str(self.id),
-            'surveyId': str(self.survey_id),
-            'questionBankId': str(self.question_bank_id),
-            'questionText': self.question_bank.question_text if self.question_bank else None,
+            'id': str(self.id),  
+            'surveyId': str(self.survey_id), # which survey it belongs to
+            'questionBankId': str(self.question_bank_id), # whcih question in bank
+            'questionText': self.question_bank.question_text if self.question_bank else None, # stand by, not sure???
             'category': self.question_bank.category if self.question_bank else None,
             'questionOrder': self.question_order,
-            'isRequired': self.is_required,
-            'scaleOptions': [1, 2, 3, 4, 5],
+            'isRequired': self.is_required, # necessory or not.
+            'scaleOptions': [1, 2, 3, 4, 5],   # change later
         }
 
 
@@ -114,7 +115,7 @@ class QuestionnaireSurveyResponse(db.Model):
     survey_question = db.relationship('QuestionnaireSurveyQuestion')
 
     __table_args__ = (
-        db.CheckConstraint('score >= 1 AND score <= 5', name='chk_questionnaire_score_range'),
+        db.CheckConstraint('score >= 1 AND score <= 5', name='chk_questionnaire_score_range'),   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!need to change later
         db.Index('idx_qsr_survey_id', 'survey_id'),
         db.Index('idx_qsr_survey_question_id', 'survey_question_id'),
     )
