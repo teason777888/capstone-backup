@@ -715,57 +715,71 @@ input, button { font: inherit; }
   to { transform: rotate(360deg); }
 }
 
-/* register */
-
 .field-group {
   margin-bottom: 1rem;
   width: 100%;
   position: relative;
 }
 
-.field-group .field {
-  width: 100%;
+.field-label {
+  display: block;
+  margin-bottom: 0.4rem;  
+  color: #1b2b34;
+  font-weight: 600; 
+  font-size: 1rem;
 }
 
-.field-group .field input.error {
+.field-select {
+  width: 100%;
+  padding: 0.8rem 0.9rem;  
+  border: 1px solid #d5deeb;  
+  border-radius: 10px; 
+  font-size: 1rem;
+  font-family: inherit;  
+  background-color: #fbfcff;  
+  
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23668094' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  background-size: 1rem;
+  cursor: pointer;
+}
+
+.field-select:hover {
+  border-color: #b0c4de;
+}
+
+.field-select:focus {
+  outline: none;
+  border-color: #1d6ef2;
+  box-shadow: 0 0 0 2px rgba(29, 110, 242, 0.2);
+}
+
+.field-select.error {
   border-color: #dc3545;
 }
 
-.field-group .field input.error:focus {
+.field-select.error:focus {
   outline-color: #dc3545;
   box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
 }
 
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  display: block;
+.field-select option {
+  font-family: inherit;
+  padding: 0.5rem;
 }
 
-.error-message::before {
-  content: "⚠ ";
-  font-weight: bold;
+.field-select option:first-child {
+  color: #668094; 
 }
 
-.auth-footer {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-  text-align: center;
-}
-
-.auth-footer a {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-
-.field-group:has(input[name="groupNumber"]) .field span:first-child {
-  color: #666;
+.field-select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Invite code */ 
@@ -895,29 +909,4 @@ input[type="text"][placeholder*="X7A9BQ"] {
 
 input[type="text"][placeholder*="X7A9BQ"]::placeholder {
   text-transform: none;
-}
-
-.field-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  background-color: white;
-}
-
-.field-select.error {
-  border-color: #dc3545;
-}
-
-.field-select.error:focus {
-  outline-color: #dc3545;
-  box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
-}
-
-.field-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 500;
 }
