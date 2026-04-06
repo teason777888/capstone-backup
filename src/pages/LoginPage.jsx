@@ -60,8 +60,8 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async (event) => {
-   event.preventDefault();
-  
+    event.preventDefault();
+    
     setTouched({
       email: true,
       password: true
@@ -80,24 +80,29 @@ export default function LoginPage() {
 
     try {
       const result = await authService.login(credentials);
-    
+      
       if (result.success) {
         localStorage.setItem('token', result.data.token);
         localStorage.setItem('user', JSON.stringify({
-         id: result.data.id,
-         name: result.data.name,
-         email: result.data.email,
-         role: result.data.role
+          id: result.data.id,
+          name: result.data.name,
+          email: result.data.email,
+          role: result.data.role
         }));
-      
+        
         login(result.data);
-      
+        
         const hasGroup = localStorage.getItem('hasGroup');
         
-        if (hasGroup === 'true') {
+        if (result.data.role === 'groupLeader') {
+          // The group leader will redirect to the management page
           navigate('/dashboard');
         } else {
-          navigate('/join-group');
+          if (hasGroup === 'true') {
+            navigate('/dashboard');
+          } else {
+            navigate('/join-group');
+          }
         }
       } else {
         if (result.status === 400 && result.details) {
@@ -107,6 +112,7 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
+      console.error('Login error:', error);
       setLoginError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);

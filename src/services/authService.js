@@ -4,14 +4,30 @@ import { apiClient } from './apiClient';
 export const authService = {
   login: async (credentials) => {
     try {
-
+      // Simulate a group leader account
+      if (import.meta.env.DEV && 
+          credentials.email === 'leader@example.com' && 
+          credentials.password === 'Leader123') {
+        console.log('[DEV] Mock group leader login');
+        return {
+          success: true,
+          data: {
+            id: 999,
+            name: 'Group Leader',
+            email: 'leader@example.com',
+            role: 'groupLeader',
+            token: 'mock-leader-token'
+          }
+        };
+      }
+      
       const response = await apiClient.post('/login', {
         email: credentials.email,
         password: credentials.password
       });
       
       console.log('Login response:', response);
-
+      
       if (response.success && response.data) {
         return {
           success: true,
@@ -19,7 +35,7 @@ export const authService = {
             id: response.data.id,
             name: response.data.name,
             email: response.data.email,
-            role: response.data.role,
+            role: response.data.role || 'user',
             token: response.data.token,
             expiresIn: response.data.expiresIn
           }
