@@ -116,6 +116,9 @@ export default function RegistrationPage() {
       console.log('Registration result:', result);
       
       if (result.success) {
+
+        localStorage.removeItem('hasGroup');
+
         updateGroup({
           name: result.data.groupName,
           inviteCode: result.data.inviteCode,

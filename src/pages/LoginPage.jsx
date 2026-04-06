@@ -92,7 +92,13 @@ export default function LoginPage() {
       
         login(result.data);
       
-        navigate('/join-group');
+        const hasGroup = localStorage.getItem('hasGroup');
+        
+        if (hasGroup === 'true') {
+          navigate('/dashboard');
+        } else {
+          navigate('/join-group');
+        }
       } else {
         if (result.status === 400 && result.details) {
           setFieldErrors(result.details);

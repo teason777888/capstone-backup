@@ -56,6 +56,9 @@ export default function InvitationCodePage() {
             inviteCode: newCode,
             members: 1
           });
+
+          localStorage.setItem('hasGroup', 'true');
+
         } else {
           setJoinError('Failed to create group. Please try again.');
         }
@@ -92,6 +95,8 @@ export default function InvitationCodePage() {
           disasterType: result.disasterType,
           members: result.memberCount
         });
+
+        localStorage.setItem('hasGroup', 'true');
         
         navigate('/dashboard');
       } else {
