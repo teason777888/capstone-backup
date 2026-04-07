@@ -7,7 +7,7 @@ from app.models.questionnaire_survey import (
 )
 
 # collect the data
-SCALE_OPTIONS = [1, 2, 3, 4, 5]  # need to change 
+SCALE_OPTIONS = [1, 2, 3, 4, 5, 6, 7]  # changed 
 
 
 def create_questionnaire_question(data):   # add new question, stand by.

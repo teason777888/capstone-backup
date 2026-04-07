@@ -97,7 +97,7 @@ class QuestionnaireSurveyQuestion(db.Model):  # a mid table to connect the quest
             'category': self.question_bank.category if self.question_bank else None,
             'questionOrder': self.question_order,
             'isRequired': self.is_required, # necessory or not.
-            'scaleOptions': [1, 2, 3, 4, 5],   # change later
+            'scaleOptions': [1, 2, 3, 4, 5, 6, 7],   # change later
         }
 
 
@@ -115,7 +115,7 @@ class QuestionnaireSurveyResponse(db.Model):
     survey_question = db.relationship('QuestionnaireSurveyQuestion')
 
     __table_args__ = (
-        db.CheckConstraint('score >= 1 AND score <= 5', name='chk_questionnaire_score_range'),   #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!need to change later
+        db.CheckConstraint('score >= 1 AND score <= 7', name='chk_questionnaire_score_range'),   # changed
         db.Index('idx_qsr_survey_id', 'survey_id'),
         db.Index('idx_qsr_survey_question_id', 'survey_question_id'),
     )

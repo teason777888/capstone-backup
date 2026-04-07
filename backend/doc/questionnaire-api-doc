@@ -1,0 +1,256 @@
+1. Create a question in question bank
+
+POST /api/v1/questionnaire-surveys/questions
+
+Description
+
+Create a new question in the questionnaire question bank.
+
+Auth
+
+Admin only
+
+Request Body
+{
+  "questionText": "Committee members actively participate in decision-making.",
+  "category": "participation"
+}
+Success Response
+
+201 Created
+
+{
+  "success": true,
+  "message": "Question created successfully",
+  "data": {
+    "id": "uuid",
+    "questionText": "Committee members actively participate in decision-making.",
+    "category": "participation",
+    "isActive": true,
+    "createdAt": "2026-04-08T10:00:00Z"
+  }
+}
+Error Response
+
+400 Bad Request
+
+{
+  "success": false,
+  "message": "Validation failed",
+  "details": {
+    "questionText": "This field is required"
+  }
+}
+2. Get all active questions
+
+GET /api/v1/questionnaire-surveys/questions
+
+Description
+
+Retrieve all active questions from the question bank.
+
+Success Response
+
+200 OK
+
+{
+  "success": true,
+  "message": "Questions retrieved successfully",
+  "data": [
+    {
+      "id": "uuid-1",
+      "questionText": "Committee members actively participate in decision-making.",
+      "category": "participation",
+      "isActive": true,
+      "createdAt": "2026-04-08T10:00:00Z"
+    }
+  ]
+}
+3. Create a questionnaire survey
+
+POST /api/v1/questionnaire-surveys
+
+Description
+
+Create a questionnaire survey using selected question bank items.
+
+Auth
+
+Admin only
+
+Request Body
+{
+  "title": "CRC Governance Assessment",
+  "description": "Questionnaire survey for governance effectiveness",
+  "questionIds": [
+    "question-bank-uuid-1",
+    "question-bank-uuid-2",
+    "question-bank-uuid-3"
+  ]
+}
+Success Response
+
+201 Created
+
+{
+  "success": true,
+  "message": "Questionnaire survey created successfully",
+  "data": {
+    "id": "survey-uuid",
+    "title": "CRC Governance Assessment",
+    "description": "Questionnaire survey for governance effectiveness",
+    "isActive": true,
+    "createdAt": "2026-04-08T10:00:00Z",
+    "questions": [
+      {
+        "id": "survey-question-uuid-1",
+        "surveyId": "survey-uuid",
+        "questionBankId": "question-bank-uuid-1",
+        "questionText": "Committee members actively participate in decision-making.",
+        "category": "participation",
+        "questionOrder": 1,
+        "isRequired": true,
+        "scaleOptions": [1, 2, 3, 4, 5, 6, 7]
+      }
+    ]
+  }
+}
+Error Response
+
+400 Bad Request
+
+{
+  "success": false,
+  "message": "Validation failed",
+  "details": {
+    "questionIds": "At least one question is required"
+  }
+}
+4. Get all questionnaire surveys
+
+GET /api/v1/questionnaire-surveys
+
+Description
+
+Retrieve all questionnaire surveys.
+
+Success Response
+
+200 OK
+
+{
+  "success": true,
+  "message": "Questionnaire surveys retrieved successfully",
+  "data": [
+    {
+      "id": "survey-uuid",
+      "title": "CRC Governance Assessment",
+      "description": "Questionnaire survey for governance effectiveness",
+      "isActive": true,
+      "createdAt": "2026-04-08T10:00:00Z"
+    }
+  ]
+}
+5. Get a questionnaire survey by ID
+
+GET /api/v1/questionnaire-surveys/<survey_id>
+
+Description
+
+Retrieve one questionnaire survey and its questions.
+
+Success Response
+
+200 OK
+
+{
+  "success": true,
+  "message": "Questionnaire survey retrieved successfully",
+  "data": {
+    "id": "survey-uuid",
+    "title": "CRC Governance Assessment",
+    "description": "Questionnaire survey for governance effectiveness",
+    "isActive": true,
+    "createdAt": "2026-04-08T10:00:00Z",
+    "questions": [
+      {
+        "id": "survey-question-uuid-1",
+        "surveyId": "survey-uuid",
+        "questionBankId": "question-bank-uuid-1",
+        "questionText": "Committee members actively participate in decision-making.",
+        "category": "participation",
+        "questionOrder": 1,
+        "isRequired": true,
+        "scaleOptions": [1, 2, 3, 4, 5, 6, 7]
+      }
+    ]
+  }
+}
+Error Response
+
+404 Not Found
+
+{
+  "success": false,
+  "message": "Questionnaire survey not found"
+}
+6. Submit questionnaire responses
+
+POST /api/v1/questionnaire-surveys/<survey_id>/responses
+
+Description
+
+Submit responses for one questionnaire survey. Each question uses a fixed 1–7 scale.
+
+Request Body
+{
+  "respondentName": "Alice",
+  "respondentEmail": "alice@example.com",
+  "answers": [
+    {
+      "surveyQuestionId": "survey-question-uuid-1",
+      "score": 6
+    },
+    {
+      "surveyQuestionId": "survey-question-uuid-2",
+      "score": 7
+    }
+  ]
+}
+Success Response
+
+201 Created
+
+{
+  "success": true,
+  "message": "Responses submitted successfully",
+  "data": [
+    {
+      "id": "response-uuid-1",
+      "surveyId": "survey-uuid",
+      "surveyQuestionId": "survey-question-uuid-1",
+      "score": 6,
+      "respondentName": "Alice",
+      "respondentEmail": "alice@example.com",
+      "submittedAt": "2026-04-08T10:10:00Z"
+    }
+  ]
+}
+Error Response
+
+400 Bad Request
+
+{
+  "success": false,
+  "message": "Validation failed",
+  "details": {
+    "score": "Score must be an integer between 1 and 7"
+  }
+}
+
+404 Not Found
+
+{
+  "success": false,
+  "message": "Questionnaire survey not found"
+}
