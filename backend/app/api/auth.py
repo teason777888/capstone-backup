@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
-from app.services.auth_service import login_user, register_user
+from app.services.auth_service import login_user, register_user, update_profile
 from app.utils.response import error_response, success_response
 from app.utils.validators import validate_email, validate_password, validate_required_fields
 
@@ -71,3 +72,21 @@ def login():
         return error_response(err, status)
 
     return jsonify({'success': True, 'data': result}), status
+
+
+@auth_bp.route('/profile', methods=['PUT'])
+@jwt_required()
+def profile():
+    data = request.get_json(silent=True)
+    if data is None:
+        return error_response('Validation failed', 400, details={'body': 'Request body is required'})
+    if not isinstance(data, dict):
+        return error_response('Validation failed', 400, details={'body': 'Request body must be a JSON object'})
+
+    result, err, status = update_profile(data)
+    if err:
+        if isinstance(err, dict):
+            return error_response('Validation failed', status, details=err)
+        return error_response(err, status)
+
+    return success_response(result, 'Profile updated successfully', status)

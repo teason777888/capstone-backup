@@ -131,7 +131,61 @@
 
 ---
 
-## 通用错误格式
+## 3. 更新个人资料
+
+`PUT /api/profile`
+
+更新当前登录用户资料。`fullName` 更新用户姓名；`region` 更新当前用户所属社区的区域信息。
+
+**Header**
+
+| 名称 | 必填 | 说明 |
+|------|------|------|
+| `Authorization` | 是 | `Bearer <token>` |
+
+**Request Body**
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `fullName` | string | 否 | 用户全名，1–100 字符 |
+| `region` | string | 否 | 社区区域，仅社区管理员（admin）可更新 |
+
+> 至少需要提供一个可更新字段。
+
+```json
+{
+  "fullName": "New Name",
+  "region": "Sydney, NSW"
+}
+```
+
+**Response — 200 OK**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.fullName` | string | 更新后的用户姓名 |
+| `data.region` | string | 更新后的社区区域 |
+
+```json
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "data": {
+    "fullName": "New Name",
+    "region": "Sydney, NSW"
+  }
+}
+```
+
+**权限说明**
+
+- 所有已登录用户都可以更新 `fullName`。
+- 只有社区管理员（admin）可以更新 `region`。
+- 非管理员提交 `region` 时返回 `403 Forbidden`。
+
+---
+
+## 4. 通用错误格式
 
 所有接口失败时统一返回：
 
@@ -146,6 +200,7 @@
 | 状态码 | 使用场景 |
 |--------|----------|
 | 200 | 成功 |
-| 400 | 参数缺失、格式错误、邮箱已存在 |
-| 401 | 邮箱或密码不正确 |
+| 400 | 参数缺失、格式错误、邮箱已存在、空请求体 |
+| 401 | 邮箱或密码不正确，或未提供/无效/过期的 token |
+| 403 | 权限不足（例如非 admin 尝试更新 `region`） |
 | 500 | 服务器内部错误 |
