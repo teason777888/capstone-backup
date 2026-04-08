@@ -112,6 +112,8 @@ class QuestionnaireSurveyResponse(db.Model):
     respondent_email = db.Column(db.String(255), nullable=True)
     submitted_at = db.Column(db.DateTime(timezone=True), nullable=False, server_default=db.func.now())
 
+    submission_id = db.Column(UUID(as_uuid=True), db.ForeignKey('questionnaire_survey_submissions.id', ondelete='CASCADE'), nullable=False)
+
     survey_question = db.relationship('QuestionnaireSurveyQuestion')
 
     __table_args__ = (
@@ -129,4 +131,87 @@ class QuestionnaireSurveyResponse(db.Model):
             'respondentName': self.respondent_name,
             'respondentEmail': self.respondent_email,
             'submittedAt': self.submitted_at.isoformat() + 'Z',
+            'submissionId': str(self.submission_id),
+        }
+
+#=============================================submission part
+
+import uuid
+
+from app.extensions import db
+from sqlalchemy.dialects.postgresql import UUID
+
+
+class QuestionnaireSurveySubmission(db.Model):
+    __tablename__ = 'questionnaire_survey_submissions'
+
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    survey_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('questionnaire_surveys.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
+    user_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
+    # community(for dashboard）
+    community_id = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey('communities.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
+    # submit time
+    submitted_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        server_default=db.func.now()
+    )
+
+    # timestamp
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        server_default=db.func.now()
+    )
+
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        server_default=db.func.now(),
+        onupdate=db.func.now()
+    )
+
+    # relation
+    survey = db.relationship('QuestionnaireSurvey', backref=db.backref('submissions', lazy='dynamic'))
+    user = db.relationship('User')
+    community = db.relationship('Community')
+
+    __table_args__ = (
+        # prevent from repeat submit
+        db.UniqueConstraint(
+            'survey_id',
+            'user_id',
+            'community_id',
+            name='uq_submission_user_survey_community'
+        ),
+        db.Index('idx_submission_survey_id', 'survey_id'),
+        db.Index('idx_submission_user_id', 'user_id'),
+        db.Index('idx_submission_community_id', 'community_id'),
+    )
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'surveyId': str(self.survey_id),
+            'userId': str(self.user_id),
+            'communityId': str(self.community_id),
+            'status': self.status,
+            'submittedAt': self.submitted_at.isoformat() + 'Z',
+            'createdAt': self.created_at.isoformat() + 'Z',
         }

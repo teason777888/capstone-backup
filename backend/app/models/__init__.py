@@ -6,6 +6,7 @@ from app.models.questionnaire_survey import (
     QuestionnaireSurvey,
     QuestionnaireSurveyQuestion,
     QuestionnaireSurveyResponse,
+    QuestionnaireSurveySubmission,
     )
 
 
