@@ -1,4 +1,6 @@
 from flask import Blueprint, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+
 
 from app.services.questionnaire_survey_service import (
     create_questionnaire_question,
@@ -92,20 +94,36 @@ def get_survey(survey_id):
 
 
 @questionnaire_survey_bp.route('/<survey_id>/responses', methods=['POST'])
+@jwt_required()
 def submit_responses(survey_id):
-    data = request.get_json(silent=True)    # check the body
+    data = request.get_json(silent=True)
     if data is None:
         return error_response('Validation failed', 400, details={'body': 'Request body is required'})
 
     respondent_email = data.get('respondentEmail')
-    if respondent_email and not validate_email(respondent_email):   # check correctness: need respondentemail is not none, and valid  but need to discuss about if need email verify.( group one account?)
+    if respondent_email and not validate_email(respondent_email):
         return error_response(
             'Validation failed',
             400,
             details={'respondentEmail': 'Must be a valid email address'},
         )
 
-    result, err, status = submit_questionnaire_survey_responses(survey_id, data)  # call services
+    community_id = data.get('communityId')
+    if not community_id:
+        return error_response(
+            'Validation failed',
+            400,
+            details={'communityId': 'This field is required'},
+        )
+
+    user_id = get_jwt_identity()
+
+    result, err, status = submit_questionnaire_survey_responses(
+        survey_id=survey_id,
+        user_id=user_id,
+        community_id=community_id,
+        data=data,
+    )
     if err:
         if isinstance(err, dict):
             return error_response('Validation failed', status, details=err)

@@ -4,6 +4,7 @@ from app.models.questionnaire_survey import (
     QuestionnaireSurvey,
     QuestionnaireSurveyQuestion,
     QuestionnaireSurveyResponse,
+    QuestionnaireSurveySubmission,
 )
 from sqlalchemy import func
 
@@ -116,12 +117,12 @@ def get_questionnaire_survey_by_id(survey_id):  #get into specific survey
     return survey.to_dict(include_questions=True), None, 200
 
 
-def submit_questionnaire_survey_responses(survey_id, data):
+def submit_questionnaire_survey_responses(survey_id, user_id, community_id, data):
     survey = QuestionnaireSurvey.query.get(survey_id)
-    if not survey:  #make sure exist
+    if not survey:
         return None, 'Questionnaire survey not found', 404
 
-    answers = data.get('answers') or []   # get answers
+    answers = data.get('answers') or []
     respondent_name = (data.get('respondentName') or '').strip() or None
     respondent_email = (data.get('respondentEmail') or '').strip() or None
 
@@ -144,22 +145,32 @@ def submit_questionnaire_survey_responses(survey_id, data):
             return None, {'surveyQuestionId': f'Invalid surveyQuestionId: {survey_question_id}'}, 400
 
         if not isinstance(score, int) or score not in SCALE_OPTIONS:
-            return None, {'score': 'Score must be an integer between 1 and 5'}, 400
+            return None, {'score': 'Score must be an integer between 1 and 7'}, 400
 
         answered_question_ids.append(survey_question_id)
 
-    if len(answered_question_ids) != len(set(answered_question_ids)):   # correctness check ,see if list len= set len, (any repeat answer for one question)
+    if len(answered_question_ids) != len(set(answered_question_ids)):
         return None, {'answers': 'Each question can only be answered once'}, 400
 
-    if set(answered_question_ids) != required_question_ids: # missing any question
+    if set(answered_question_ids) != required_question_ids:
         return None, {'answers': 'All required questions must be answered'}, 400
 
     try:
+        submission = QuestionnaireSurveySubmission(
+            survey_id=survey.id,
+            user_id=user_id,
+            community_id=community_id,
+            status='submitted',
+        )
+        db.session.add(submission)
+        db.session.flush()
+
         created_responses = []
         for answer in answers:
-            response = QuestionnaireSurveyResponse(  # write in db
+            response = QuestionnaireSurveyResponse(
                 survey_id=survey.id,
                 survey_question_id=answer['surveyQuestionId'],
+                submission_id=submission.id,
                 score=answer['score'],
                 respondent_name=respondent_name,
                 respondent_email=respondent_email,
@@ -168,7 +179,11 @@ def submit_questionnaire_survey_responses(survey_id, data):
             created_responses.append(response)
 
         db.session.commit()
-        return [response.to_dict() for response in created_responses], None, 201
+
+        return {
+            'submission': submission.to_dict(),
+            'responses': [response.to_dict() for response in created_responses],
+        }, None, 201
     except Exception:
         db.session.rollback()
         raise
