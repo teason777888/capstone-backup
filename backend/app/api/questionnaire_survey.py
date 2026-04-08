@@ -7,6 +7,7 @@ from app.services.questionnaire_survey_service import (
     get_questionnaire_questions,
     get_questionnaire_survey_by_id,
     submit_questionnaire_survey_responses,
+    get_questionnaire_submission_count,
 )
 from app.utils.decorators import role_required
 from app.utils.response import error_response, success_response
@@ -111,3 +112,18 @@ def submit_responses(survey_id):
         return error_response(err, status)
 
     return success_response(result, 'Responses submitted successfully', status)
+
+@questionnaire_survey_bp.route('/<survey_id>/submission-count', methods=['GET'])
+def get_submission_count(survey_id):
+    community_id = request.args.get('communityId')
+    if not community_id:
+        return error_response(
+            'Validation failed',
+            400,
+            details={'communityId': 'This field is required'},
+            )
+    result, err, status = get_questionnaire_submission_count(survey_id, community_id)
+    if err:
+        return error_response(err, status)
+
+    return success_response(result, 'Submission count retrieved successfully', status)

@@ -5,9 +5,26 @@ from app.models.questionnaire_survey import (
     QuestionnaireSurveyQuestion,
     QuestionnaireSurveyResponse,
 )
+from sqlalchemy import func
+
+from app.models.questionnaire_survey import QuestionnaireSurveySubmission
 
 # collect the data
 SCALE_OPTIONS = [1, 2, 3, 4, 5, 6, 7]  # changed 
+
+def get_questionnaire_submission_count(survey_id, community_id):
+    submitted_count = db.session.query(
+        func.count(func.distinct(QuestionnaireSurveySubmission.user_id))
+    ).filter(
+        QuestionnaireSurveySubmission.survey_id == survey_id,
+        QuestionnaireSurveySubmission.community_id == community_id,
+    ).scalar()
+
+    return {
+        'surveyId': str(survey_id),
+        'communityId': str(community_id),
+        'submittedCount': submitted_count or 0,
+    }, None, 200
 
 
 def create_questionnaire_question(data):   # add new question, stand by.
