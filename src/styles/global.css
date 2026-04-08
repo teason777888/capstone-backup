@@ -1033,3 +1033,68 @@ input[type="text"][placeholder*="X7A9BQ"]::placeholder {
     flex-direction: column;
   }
 }
+
+.summary-metric-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4e6485;
+}
+
+.question-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e4ecf8;
+}
+
+.question-result-title {
+  font-weight: 700;
+  color: #17345d;
+}
+
+.question-result-labels {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  color: #3e5a83;
+  font-size: 14px;
+}
+
+.question-result-stance {
+  margin-top: 6px;
+  color: #2f496f;
+  font-size: 14px;
+}
+
+.agreement-pill {
+  height: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.agreement-pill.high {
+  background: #e7f8ee;
+  color: #0f7a42;
+}
+
+.agreement-pill.moderate {
+  background: #fff7e5;
+  color: #9d6b00;
+}
+
+.agreement-pill.low {
+  background: #fdebec;
+  color: #b4232a;
+}
+
+.admin-text-input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid #d5deeb;
+  border-radius: 10px;
+  background: #fbfcff;
+}

@@ -1,9 +1,22 @@
 // services/authService.js
 import { apiClient } from './apiClient';
 
+function isBlank(value) {
+  return typeof value !== 'string' || value.trim() === '';
+}
+
 export const authService = {
   login: async (credentials) => {
     try {
+      if (isBlank(credentials?.email) || isBlank(credentials?.password)) {
+        return {
+          success: false,
+          error: 'Email and password are required',
+          details: {},
+          status: 400
+        };
+      }
+
       // Simulate a group leader account
       if (import.meta.env.DEV && 
           credentials.email === 'leader@example.com' && 
@@ -61,6 +74,14 @@ export const authService = {
 
   register: async (formData) => {
     try {
+      if (isBlank(formData?.fullName) || isBlank(formData?.email) || isBlank(formData?.password)) {
+        return {
+          success: false,
+          error: 'Full name, email and password are required',
+          details: {},
+          status: 400
+        };
+      }
 
       const payload = {
         fullName: formData.fullName,

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
-const links = [
+const baseLinks = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/group-management', label: 'Group Management' },
   { to: '/assessment-welcome', label: 'Assessment' },
@@ -8,6 +9,11 @@ const links = [
 ];
 
 export default function Sidebar() {
+  const { user } = useAuth();
+  const links = user.role === 'admin'
+    ? [...baseLinks, { to: '/admin/questions', label: 'Question Admin' }]
+    : baseLinks;
+
   return (
     <aside className="sidebar">
       <div>

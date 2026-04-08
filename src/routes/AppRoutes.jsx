@@ -11,6 +11,7 @@ import QuestionnairePage from "../pages/QuestionnairePage";
 import AssessmentSuccessPage from "../pages/AssessmentSuccessPage";
 import QuestionnaireSummaryPage from "../pages/QuestionnaireSummaryPage";
 import NetworkMappingPage from "../pages/NetworkMappingPage";
+import AdminQuestionBankPage from "../pages/AdminQuestionBankPage";
 
 export default function AppRoutes() {
   return (
@@ -26,6 +27,7 @@ export default function AppRoutes() {
       <Route path="/assessment-success" element={<AssessmentSuccessPage />} />
       <Route path="/assessment-summary" element={<QuestionnaireSummaryPage />} />
       <Route path="/network-mapping" element={<NetworkMappingPage />} />
+      <Route path="/admin/questions" element={<AdminQuestionBankPage />} />
       <Route path="/questionnaire" element={<Navigate to="/assessment" replace />} />
       <Route path="/questionnaire-summary" element={<Navigate to="/assessment-summary" replace />} />
       <Route path="*" element={<div style={{ padding: 20 }}>404 Not Found</div>} />

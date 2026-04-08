@@ -5,18 +5,24 @@ const defaultHeaders = {
   'Content-Type': 'application/json',
 };
 
-async function request(path, options = {}) {
+function safeParseJson(text) {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
+async function request(path, options = {}) {
   const apiPath = path.startsWith('/api') ? path : `/api${path}`;
   const url = `${API_BASE_URL}${apiPath}`;
-  
-  console.log('Request URL:', url);
-  
+
   const token = localStorage.getItem('token');
-  
+
   const headers = {
     ...defaultHeaders,
-    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...(token && { Authorization: `Bearer ${token}` }),
     ...options.headers,
   };
 
@@ -26,18 +32,22 @@ async function request(path, options = {}) {
       ...options,
     });
 
-    const data = await response.json();
+    const rawBody = await response.text();
+    const data = safeParseJson(rawBody);
 
     if (!response.ok) {
-
       throw {
         status: response.status,
-        message: data.message || data.error || 'Request failed',
-        details: data.details || {}
+        message: data?.message || data?.error || `Request failed with status ${response.status}`,
+        details: data?.details || {},
       };
     }
 
-    return data;
+    if (response.status === 204 || rawBody.length === 0) {
+      return { success: true };
+    }
+
+    return data ?? { success: true, data: rawBody };
   } catch (error) {
     if (error.status) {
       throw error;
@@ -46,7 +56,7 @@ async function request(path, options = {}) {
     throw {
       status: 500,
       message: 'Network error - please check if backend is running',
-      details: {}
+      details: {},
     };
   }
 }

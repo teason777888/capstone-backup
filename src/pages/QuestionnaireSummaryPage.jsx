@@ -1,31 +1,56 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { questionnaireSections } from "../data/questionnaireData";
+import { getQuestionnaireSections } from "../data/questionnaireStore";
+
+function getAgreementLevel(questionId) {
+  const seed = questionId.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const levels = ["High", "Moderate", "Low"];
+  return levels[seed % levels.length];
+}
+
+function getPositionLabel(value, leftLabel, rightLabel) {
+  if (!value) return "No response yet";
+  if (value <= 3) return `Leaning toward: ${leftLabel}`;
+  if (value >= 5) return `Leaning toward: ${rightLabel}`;
+  return "Balanced / in-between view";
+}
 
 export default function QuestionnaireSummaryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const responses = location.state?.responses || {};
 
-  const answered = Object.keys(responses).length;
-  const total = questionnaireSections.reduce(
-    (sum, section) => sum + section.questions.length,
-    0
+  const questionnaireSections = useMemo(() => getQuestionnaireSections(), []);
+  const allQuestions = questionnaireSections.flatMap((section) =>
+    section.questions.map((question) => ({
+      ...question,
+      sectionTitle: section.title,
+    }))
   );
 
-  const mockSectionResults = [
-    { name: "Formation and Scope", mean: 4.8, agreement: "High" },
-    { name: "Governance and Structure", mean: 4.1, agreement: "Moderate" },
-    { name: "Stakeholder Engagement", mean: 5.2, agreement: "High" },
-  ];
+  const answered = Object.keys(responses).length;
+  const total = allQuestions.length;
+
+  const questionSummaries = allQuestions.map((question) => {
+    const value = responses[question.id];
+    return {
+      ...question,
+      value,
+      agreement: getAgreementLevel(question.id),
+      stance: getPositionLabel(value, question.leftLabel, question.rightLabel),
+    };
+  });
+
+  const highAgreementCount = questionSummaries.filter((q) => q.agreement === "High").length;
+  const lowAgreementCount = questionSummaries.filter((q) => q.agreement === "Low").length;
 
   return (
     <div className="summary-page">
       <div className="summary-header-card">
         <h1>Questionnaire Summary</h1>
         <p>
-          Thank you for completing the CRC self-assessment questionnaire. This
-          page presents a summary of your responses and key group-level insights.
+          This summary shows agreement and disagreement for each question so the
+          group can identify where discussion is most needed.
         </p>
       </div>
 
@@ -38,64 +63,53 @@ export default function QuestionnaireSummaryPage() {
         </div>
 
         <div className="summary-metric-card">
-          <div className="summary-metric-label">Overall Alignment Score</div>
-          <div className="summary-metric-value">4.4</div>
+          <div className="summary-metric-label">High Agreement Questions</div>
+          <div className="summary-metric-value">{highAgreementCount}</div>
         </div>
 
         <div className="summary-metric-card">
-          <div className="summary-metric-label">Highest Consensus</div>
-          <div className="summary-metric-value">Q1</div>
+          <div className="summary-metric-label">High Disagreement Questions</div>
+          <div className="summary-metric-value">{lowAgreementCount}</div>
         </div>
 
         <div className="summary-metric-card">
-          <div className="summary-metric-label">Highest Disagreement</div>
-          <div className="summary-metric-value">Q7</div>
+          <div className="summary-metric-label">Unanswered Questions</div>
+          <div className="summary-metric-value">{total - answered}</div>
         </div>
       </div>
 
-      <div className="summary-content-grid">
-        <div className="summary-card">
-          <h3>Section-Level Results</h3>
+      <div className="summary-card">
+        <h3>Question-level Agreement & Disagreement</h3>
 
-          {mockSectionResults.map((item) => (
-            <div key={item.name} className="section-result-row">
-              <div className="section-result-text">
-                <strong>{item.name}</strong>
-                <span>{item.agreement} agreement</span>
+        {questionSummaries.map((item, index) => (
+          <div key={item.id} className="question-result-row">
+            <div>
+              <div className="question-result-title">Q{index + 1} · {item.sectionTitle}</div>
+              <div className="question-result-labels">
+                <span>{item.leftLabel}</span>
+                <span>↔</span>
+                <span>{item.rightLabel}</span>
               </div>
-              <div className="summary-bar-wrap">
-                <div
-                  className="summary-bar"
-                  style={{ width: `${(item.mean / 7) * 100}%` }}
-                />
-              </div>
-              <div className="summary-score">{item.mean.toFixed(1)}</div>
+              <div className="question-result-stance">{item.stance}</div>
             </div>
-          ))}
-        </div>
-
-        <div className="summary-card">
-          <h3>Key Insights</h3>
-          <ul className="insight-list">
-            <li>The group shows the strongest consensus around location and scope definition.</li>
-            <li>The greatest disagreement appears in the timing and formation of the group.</li>
-            <li>Governance-related items show moderate variation and may need discussion.</li>
-            <li>Stakeholder engagement is relatively strong across respondents.</li>
-          </ul>
-        </div>
+            <div className={`agreement-pill ${item.agreement.toLowerCase()}`}>
+              {item.agreement} {item.agreement === "Low" ? "disagreement" : "agreement"}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="summary-card">
         <h3>Recommended Next Step</h3>
         <p>
-          Use the highest disagreement items as discussion prompts in your next
-          committee meeting. These questions highlight areas where member views
-          differ most and where structured discussion may improve alignment.
+          Start discussion with the questions marked <strong>Low agreement</strong>
+          to clarify different perspectives, then lock in decisions on questions
+          marked <strong>High agreement</strong>.
         </p>
       </div>
 
       <div className="summary-actions">
-        <button className="secondary-btn" onClick={() => navigate("/questionnaire")}>
+        <button className="secondary-btn" onClick={() => navigate("/questionnaire")}> 
           Back to Questionnaire
         </button>
         <button className="primary-btn" onClick={() => navigate("/assessment-success")}>

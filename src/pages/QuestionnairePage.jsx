@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { questionnaireSections } from "../data/questionnaireData";
+import { getQuestionnaireSections } from "../data/questionnaireStore";
 import BipolarScaleQuestion from "../components/assessment/BipolarScaleQuestion";
 import AnalyticsPanel from "../components/assessment/AnalyticsPanel";
 
@@ -22,6 +22,7 @@ export default function QuestionnairePage() {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [responses, setResponses] = useState({});
 
+  const questionnaireSections = useMemo(() => getQuestionnaireSections(), []);
   const currentSection = questionnaireSections[currentSectionIndex];
 
   const totalQuestions = questionnaireSections.reduce(
