@@ -185,7 +185,55 @@
 
 ---
 
-## 4. 通用错误格式
+## 4. 获取 Dashboard 概览
+
+`GET /api/dashboard`
+
+获取当前登录用户所属社区的 Dashboard 概览信息。
+
+**Header**
+
+| 名称 | 必填 | 说明 |
+|------|------|------|
+| `Authorization` | 是 | `Bearer <token>` |
+
+**Request Body**
+
+- 无 body
+
+**Response — 200 OK**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `data.communityName` | string | 当前社区名称 |
+| `data.region` | string | 当前社区所在区域 |
+| `data.disasterType` | string | 当前社区灾害类型 |
+| `data.inviteCode` | string | 当前社区邀请码 |
+| `data.memberCount` | number | 当前社区成员总数 |
+| `data.responseCount` | number | 当前社区所有问卷的总提交次数 |
+
+```json
+{
+  "success": true,
+  "data": {
+    "communityName": "Riverside Recovery Committee",
+    "region": "Northern Rivers, NSW",
+    "disasterType": "flood",
+    "inviteCode": "X7A9BQ",
+    "memberCount": 18,
+    "responseCount": 12
+  }
+}
+```
+
+**说明**
+
+- 接口根据当前登录用户的 token 自动识别所属社区。
+- `responseCount` 统计的是当前社区所有问卷的总提交记录数，不按问卷区分，也不按用户去重。
+
+---
+
+## 5. 通用错误格式
 
 所有接口失败时统一返回：
 

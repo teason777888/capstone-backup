@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 
 from app.services.auth_service import login_user, register_user, update_profile
+from app.services.dashboard_service import get_dashboard_data
 from app.utils.response import error_response, success_response
 from app.utils.validators import validate_email, validate_password, validate_required_fields
 
@@ -68,6 +69,16 @@ def login():
         )
 
     result, err, status = login_user(data)
+    if err:
+        return error_response(err, status)
+
+    return jsonify({'success': True, 'data': result}), status
+
+
+@auth_bp.route('/dashboard', methods=['GET'])
+@jwt_required()
+def dashboard():
+    result, err, status = get_dashboard_data()
     if err:
         return error_response(err, status)
 
